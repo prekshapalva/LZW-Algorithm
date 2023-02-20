@@ -1,4 +1,4 @@
-## "LZW Algorithm" - FS Mini Project (VTU - Vth semester)
+## "LZW Algorithm" - FS Mini Project (VTU - VIth semester)
 
 The "Lempel-Ziv-Welch Algorithm on text file" is developed and implemented using C++. This project has been submitted as a part of my VI semester File Structures Mini Project (18ISL67) of Bachelor of Engineering in Information Science & Engineering for the year 2021-22.
 
@@ -23,7 +23,7 @@ The user enters the input in the form of text file. This input file is sent to t
   <img src="">
  </p>
 
-### :four: Overwiew of YOLO object detection algorithm
+### :four: Overwiew of LZW algorithm
 In progress
 
 ### :five: Conclusion
