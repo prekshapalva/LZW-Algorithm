@@ -1,19 +1,3 @@
-/********************************************************************
-**
-** Copyright (c) 1989 Mark R. Nelson
-**
-** LZW data compression/expansion demonstration program.
-**
-** April 13, 1989
-**
-*****************************************************************************/
-
-
-
-/* Modified to C++ by Mark Fenner Sept. 20, 1999 */
-
-
-/* MF modified */
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
@@ -33,7 +17,7 @@
   #define TABLE_SIZE 5021
 #endif
 
-/* MF modified */
+
 int *code_value;                  /* This is the code value array        */
 unsigned int *prefix_code;        /* This array holds the prefix codes   */
 unsigned char *append_character;  /* This array holds the appended chars */
@@ -46,15 +30,6 @@ unsigned char *decode_string(unsigned char *, unsigned int);
 int input_code(istream &);
 void output_code(ostream &,unsigned int);
 
-/********************************************************************
-**
-** This program gets a file name from the command line.  It compresses the
-** file, placing its output in a file named test.lzw.  It then expands
-** test.lzw into test.out.  Test.out should then be an exact duplicate of
-** the input file.
-**
-*************************************************************************/
-
 int main(int argc, char *argv[])
 {
 ifstream input_file;
@@ -63,9 +38,6 @@ ofstream output_file;
 ofstream lzw_file_o;
 char input_file_name[81];
 
-/*
-**  The three buffers are needed for the compression phase.
-*/
 code_value=new int[TABLE_SIZE*sizeof(unsigned int)];
 prefix_code=new unsigned int[TABLE_SIZE*sizeof(unsigned int)];
 append_character=new unsigned char[TABLE_SIZE*sizeof(unsigned char)];
@@ -76,9 +48,7 @@ if (code_value==NULL || prefix_code==NULL || append_character==NULL)
     cout << "Fatal error allocating table space!\n";
     exit(0);
   }
-/*
-** Get the file name, open it up, and open up the lzw output file.
-*/
+
 if (argc>1)
   {
     strcpy(input_file_name, argv[1]);
@@ -104,9 +74,7 @@ compress(input_file,lzw_file_o);
 input_file.close(); /*fclose(input_file);*/
 lzw_file_o.close(); /*fclose(lzw_file);*/
 delete code_value;
-/*
-** Now open the files for the expansion.
-*/
+
 lzw_file_i.open("test.lzw", ios::binary);
 /*lzw_file=fopen("test.lzw","rb");*/
 output_file.open("test.out", ios::binary);
@@ -116,9 +84,7 @@ if (!lzw_file_i  || !output_file)
     cout << "Fatal error opening files.\n";
     exit(0);
   };
-/*
-** Expand the file.
-*/
+
 expand(lzw_file_i, output_file);
 lzw_file_i.close();
 output_file.close();
@@ -127,11 +93,6 @@ delete prefix_code;
 delete append_character;
 }
 
-/*
-** This is the compression routine.  The code should be a fairly close
-** match to the algorithm accompanying the article.
-**
-*/
 
 void compress(ifstream &input,ofstream &output)
 {
@@ -151,11 +112,7 @@ ofstream output_code_file;
   i=0;
   cout << "Compressing...\n";
   string_code=input.get();    /* Get the first code                         */
-/*
-** This is the main loop where it all happens.  This loop runs util all of
-** the input has been exhausted.  Note that it stops adding codes to the
-** table after all of the possible codes have been defined.
-*/
+
   while ((character=input.get()) != (unsigned)EOF)
   {
     if (++i==1000)                         /* Print a * every 1000    */
@@ -181,9 +138,7 @@ ofstream output_code_file;
       string_code=character;            /* that is not in the table*/
     }                                   /* I output the last string*/
   }                                     /* after adding the new one*/
-/*
-** End of the main loop.
-*/
+
   output_code(output,string_code); /* Output the last code               */
 
       output_code_file << string_code << "\n";
@@ -193,12 +148,6 @@ ofstream output_code_file;
   cout << "\n";
 }
 
-/*
-** This is the hashing routine.  It tries to find a match for the prefix+char
-** string in the string table.  If it finds it, the index is returned.  If
-** the string is not found, the first available index in the string table is
-** returned instead.
-*/
 
 int find_match(int hash_prefix,unsigned int hash_character)
 {
@@ -223,11 +172,6 @@ int offset;
   }
 }
 
-/*
-**  This is the expansion routine.  It takes an LZW format file, and expands
-**  it to an output file.  The code here should be a fairly close match to
-**  the algorithm in the accompanying article.
-*/
 
 void expand(istream &input,ostream &output)
 {
@@ -253,10 +197,7 @@ ofstream input_code_file;
   input_code_file.open("inputcodes", ios::out);
 
   input_code_file << old_code << "\n";
-  /*
-**  This is the main expansion loop.  It reads in characters from the LZW file
-**  until it sees the special code used to inidicate the end of the data.
-*/
+
   while ((new_code=input_code(input)) != (MAX_VALUE))
   {
 	 input_code_file << new_code << "\n";
@@ -265,24 +206,16 @@ ofstream input_code_file;
       counter=0;           /* It is just a pacifier.              */
       cout << "*";
     }
-/*
-** This code checks for the special STRING+CHARACTER+STRING+CHARACTER+STRING
-** case which generates an undefined code.  It handles it by decoding
-** the last code, and adding a single character to the end of the decode string.
-*/
+
     if (new_code>=next_code)
     {
       *decode_stack=character;
       string=decode_string(decode_stack+1,old_code);
     }
-/*
-** Otherwise we do a straight decode of the new code.
-*/
+
     else
       string=decode_string(decode_stack,new_code);
-/*
-** Now we output the decoded string in reverse order.
-*/
+
     character=*string;
     while (string >= decode_stack)
 {
@@ -304,11 +237,6 @@ ofstream input_code_file;
   cout << "\n";
 }
 
-/*
-** This routine simply decodes a string from the string table, storing
-** it in a buffer.  The buffer can then be output in reverse order by
-** the expansion program.
-*/
 
 unsigned char *decode_string(unsigned char *buffer,unsigned int code)
 {
@@ -329,11 +257,6 @@ int i;
   return(buffer);
 }
 
-/*
-** The following two routines are used to output variable length
-** codes.  They are written strictly for clarity, and are not
-** particularyl efficient.
-*/
 
 int input_code(istream &input)
 {
